@@ -131,7 +131,7 @@ header.top a.brand{color:var(--navy);text-decoration:none;font-weight:800;font-s
 h1{font-size:24px;line-height:1.35;margin:22px 0 8px;color:var(--navy)}h2{font-size:18px;margin:28px 0 10px;color:var(--navy);border-left:4px solid var(--teal);padding-left:10px}
 .lead{color:var(--sub);margin:0 0 14px}.panel{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0}
 form.s{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}form.s input{min-width:0;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
-.btn{display:inline-block;background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn{display:inline-block;background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;text-decoration:none;cursor:pointer;white-space:normal;max-width:100%}
 .btn.sub{background:#fff;color:var(--teal);border:1px solid var(--teal)}
 .tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:var(--bg);white-space:nowrap}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.grid a{display:block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-decoration:none;color:var(--ink);min-width:0}
