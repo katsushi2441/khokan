@@ -124,7 +124,8 @@ function page(string $title, string $desc, string $url, string $body, array $ld 
     echo '<style>
 :root{--teal:#0a9a8f;--navy:#12202f;--ink:#1f2d36;--sub:#5b6b70;--line:#d9e2e6;--bg:#f6f9fa}
 *{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font:15px/1.7 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
-a{color:var(--teal)}.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+a{color:var(--teal);overflow-wrap:anywhere;word-break:break-all}.wrap{max-width:960px;margin:0 auto;padding:0 16px;overflow-wrap:anywhere}
+.tag{white-space:normal}
 header.top{border-bottom:1px solid var(--line);background:#fff}header.top .wrap{display:flex;align-items:center;justify-content:space-between;min-height:56px;gap:12px;flex-wrap:wrap}
 header.top a.brand{color:var(--navy);text-decoration:none;font-weight:800;font-size:17px}header.top nav a{margin-left:14px;font-size:13px;color:var(--sub);text-decoration:none}
 h1{font-size:24px;line-height:1.35;margin:22px 0 8px;color:var(--navy)}h2{font-size:18px;margin:28px 0 10px;color:var(--navy);border-left:4px solid var(--teal);padding-left:10px}
