@@ -1,0 +1,11 @@
+*.env
+.env.*
+*.bak
+*.bak-*
+*.env.bak*
+data/*.csv
+data/*.sqlite
+data/*.sqlite-*
+outputs/
+php/khokan_data/
+__pycache__/
