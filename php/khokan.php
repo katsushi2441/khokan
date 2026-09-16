@@ -95,6 +95,19 @@ function days_ja(array $r): string {
 }
 function tel_link(string $t): string { $d = preg_replace('/[^0-9+]/', '', $t); return $d ? '<a href="tel:' . h($d) . '">' . h($t) . '</a>' : h($t); }
 
+
+// 地方厚生局「届出受理指定訪問看護事業所名簿」の受理番号（略称表より）。ここに無い番号は画面に出さない。
+const NOTICE_LABELS = [
+    '訪看23' => '24時間対応体制加算（イ）', '訪看24' => '24時間対応体制加算（ロ）',
+    '訪看10' => '精神科訪問看護基本療養費（精神科訪問看護ができる）', '訪看25' => '特別管理加算（医療処置の多い方の受け入れ）',
+    '訪看27' => '精神科複数回訪問加算', '訪看28' => '精神科重症患者支援管理連携加算',
+    '訪看26' => '専門の研修を受けた看護師の配置', '訪看32' => '機能強化型訪問看護管理療養費1', '訪看33' => '機能強化型訪問看護管理療養費2',
+    '訪看34' => '機能強化型訪問看護管理療養費3', '訪看35' => '訪問看護医療DX情報活用加算', '訪看36' => '専門管理加算', '訪看37' => '遠隔死亡診断補助加算',
+];
+function notice_for(string $no): ?array {
+    try { $st = db()->prepare('SELECT * FROM notices WHERE no=?'); $st->execute([$no]); $r = $st->fetch(PDO::FETCH_ASSOC); return $r ?: null; }
+    catch (Throwable $e) { return null; }   // notices テーブルが無い版の DB でも動く
+}
 // ---- 画面の骨格 ----
 function page(string $title, string $desc, string $url, string $body, array $ld = [], string $h1 = ''): void {
     $m = meta();
@@ -204,7 +217,21 @@ if (($seg[0] ?? '') === 's' && isset($seg[1])) {
         . ($r['url'] !== '' ? '<tr><th>公式サイト</th><td><a href="' . h($r['url']) . '" rel="nofollow noopener" target="_blank">' . h($r['url']) . '</a></td></tr>' : '')
         . ($r['note'] !== '' ? '<tr><th>備考</th><td>' . h($r['note']) . '</td></tr>' : '')
         . '</table></div>';
-    $body .= '<div class="warn"><b>空き状況・受け入れ可否・料金は、公開データに含まれていません。</b>利用を考えている方は、この電話番号へ直接お問い合わせください。24時間対応や精神科訪問看護の有無も、事業所に確認してください。</div>';
+    $nt = notice_for($r['no']);
+    if ($nt) {
+        $codes = array_filter(explode(',', $nt['codes']));
+        $body .= '<h2>厚生局への届出（' . h($nt['asof']) . ' 現在）</h2><div class="panel">'
+            . '<p>医療保険で訪問看護を行うときの届出です。<b>届出があれば、その体制を取っている</b>ことを意味します（届出が無い項目は「取っていない」ではなく「この名簿に無い」です）。</p>';
+        $has24 = in_array('訪看23', $codes, true) || in_array('訪看24', $codes, true);
+        $body .= '<p>' . ($has24 ? '<span class="tag" style="border-color:var(--teal);color:var(--teal)">24時間対応体制の届出あり</span>' : '<span class="tag">24時間対応体制の届出はこの名簿に無い</span>')
+            . (in_array('訪看10', $codes, true) ? ' <span class="tag" style="border-color:var(--teal);color:var(--teal)">精神科訪問看護の届出あり</span>' : '')
+            . (in_array('訪看25', $codes, true) ? ' <span class="tag" style="border-color:var(--teal);color:var(--teal)">特別管理加算の届出あり</span>' : '') . '</p>';
+        $rows_ = [];
+        foreach ($codes as $c) { if (isset(NOTICE_LABELS[$c])) { $rows_[] = '<tr><td>' . h($c) . '</td><td>' . h(NOTICE_LABELS[$c]) . '</td></tr>'; } }
+        if ($rows_) { $body .= '<div class="tbl"><table><tr><th>受理番号</th><th>内容</th></tr>' . implode('', $rows_) . '</table></div>'; }
+        $body .= '<p class="note">出典：' . h($nt['bureau']) . 'ホームページ「届出受理指定訪問看護事業所名簿」（<a href="' . h($nt['bureau_url']) . '" rel="noopener">' . h($nt['bureau_url']) . '</a>）を加工して作成。電話番号で厚生労働省の事業所データと突き合わせています。ステーションコード ' . h($nt['station_code']) . '。</p></div>';
+    }
+    $body .= '<div class="warn"><b>空き状況・受け入れ可否・料金は、公開データに含まれていません。</b>利用を考えている方は、この電話番号へ直接お問い合わせください。' . ($nt ? '' : '24時間対応や精神科訪問看護の有無も、事業所に確認してください。') . '</div>';
     if ($same) {
         $body .= '<h2>同じ名前の別のステーション（' . count($same) . '軒）</h2><p class="note">名前が同じでも運営法人も場所も別です。取り違えの原因になるので並べています。</p>';
         foreach (array_slice($same, 0, 8) as $s) { $body .= station_card($s); }
@@ -337,5 +364,5 @@ foreach ($topNames as $r) { $body .= '<a href="' . u('/n/' . rawurlencode($r['na
 $body .= '</div><p class="note">全国で ' . n($m['shared_names'] ?? 0) . ' の名前を ' . n($m['shared_stations'] ?? 0) . ' 軒が共有しています。</p>';
 $body .= '<h2>都道府県から</h2><p><a class="btn sub" href="' . u('/area/') . '">47都道府県の一覧へ</a></p>';
 $body .= '<h2>制度の引き表</h2><div class="panel"><p>訪問看護を医療保険で使うか介護保険で使うか、要介護1〜5・要支援1〜2ごとの月の上限。<a href="' . u('/seido/') . '">引き表を見る</a></p></div>';
-$body .= '<h2>このページでできないこと</h2><div class="warn">空き状況・受け入れ可否・料金・24時間対応や精神科対応の有無は、公開データに含まれていないため載せていません。事業所へ電話で確認してください。</div>';
+$body .= '<h2>このページでできないこと</h2><div class="warn">空き状況・受け入れ可否・料金は、公開データに含まれていないため載せていません。24時間対応・精神科訪問看護・特別管理加算は、厚生局の届出名簿がある地域（いまは東海北陸6県）だけ「届出の有無」を出しています。事業所へ電話で確認してください。</div>';
 page(NAME . '｜訪問看護ステーションを名前・住所から探す（全国' . n($m['count'] ?? 0) . '軒）', '訪問看護ステーション' . n($m['count'] ?? 0) . '軒を名前・住所から。同じ名前の別事業所を住所で見分け、電話・利用可能曜日・運営法人を公開データで確認。医療保険/介護保険の引き表つき。', BASE . '/', $body, [], h(NAME));
