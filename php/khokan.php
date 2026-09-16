@@ -186,7 +186,8 @@ if (($seg[0] ?? '') === 's' && isset($seg[1])) {
     $st = db()->prepare('SELECT * FROM stations WHERE no=?'); $st->execute([$seg[1]]); $r = $st->fetch(PDO::FETCH_ASSOC);
     if (!$r) { not_found('事業所番号 ' . $seg[1]); }
     $same = [];
-    if ($r['name_core'] !== '') { $q = db()->prepare('SELECT * FROM stations WHERE name_core=? AND no<>? ORDER BY pref_code, city'); $q->execute([$r['name_core'], $r['no']]); $same = $q->fetchAll(PDO::FETCH_ASSOC); }
+    // 同名は同じ都道府県を先に。全部並べると「ひなた」で36軒・縦8,600pxになるので、画面には8軒まで。残りは /n/ へ
+    if ($r['name_core'] !== '') { $q = db()->prepare('SELECT * FROM stations WHERE name_core=? AND no<>? ORDER BY (pref_code=?) DESC, pref_code, city'); $q->execute([$r['name_core'], $r['no'], $r['pref_code']]); $same = $q->fetchAll(PDO::FETCH_ASSOC); }
     $near = ($r['lat'] !== null) ? nearby((float)$r['lat'], (float)$r['lon'], 8, 0.05, $r['no']) : [];
     $title = $r['name'] . '（' . $r['pref'] . $r['city'] . '）の訪問看護ステーション｜住所・電話・利用可能曜日';
     $desc = $r['name'] . 'は' . $r['pref'] . $r['city'] . 'の訪問看護ステーション。' . $r['address'] . '、電話 ' . $r['tel'] . '、利用可能曜日 ' . days_ja($r) . '。'
@@ -206,8 +207,9 @@ if (($seg[0] ?? '') === 's' && isset($seg[1])) {
     $body .= '<div class="warn"><b>空き状況・受け入れ可否・料金は、公開データに含まれていません。</b>利用を考えている方は、この電話番号へ直接お問い合わせください。24時間対応や精神科訪問看護の有無も、事業所に確認してください。</div>';
     if ($same) {
         $body .= '<h2>同じ名前の別のステーション（' . count($same) . '軒）</h2><p class="note">名前が同じでも運営法人も場所も別です。取り違えの原因になるので並べています。</p>';
-        foreach ($same as $s) { $body .= station_card($s); }
-        $body .= '<p><a class="btn sub" href="' . u('/n/' . rawurlencode($r['name_core'])) . '">「' . h($r['name_core']) . '」の全一覧</a></p>';
+        foreach (array_slice($same, 0, 8) as $s) { $body .= station_card($s); }
+        if (count($same) > 8) { $body .= '<p class="note">ほか' . (count($same) - 8) . '軒。</p>'; }
+        $body .= '<p><a class="btn sub" href="' . u('/n/' . rawurlencode($r['name_core'])) . '">「' . h($r['name_core']) . '」の全' . (count($same) + 1) . '軒を都道府県別に見る</a></p>';
     }
     if ($near) { $body .= '<h2>近くの訪問看護ステーション</h2>'; foreach ($near as $s) { $body .= station_card($s, true); } }
     $body .= '<h2>訪問看護を使うときの制度</h2><div class="panel"><p>医療保険で使うか介護保険で使うか、要介護度ごとに月にどれだけ使えるか（区分支給限度基準額）は<a href="' . u('/seido/') . '">制度の引き表</a>にまとめています。</p></div>';

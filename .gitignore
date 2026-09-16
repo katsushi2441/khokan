@@ -7,5 +7,6 @@ data/*.csv
 data/*.sqlite
 data/*.sqlite-*
 outputs/
-php/khokan_data/
+php/khokan_data/*.sqlite*
+php/khokan_data/geo/
 __pycache__/
