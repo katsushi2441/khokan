@@ -173,15 +173,16 @@ $m = meta();
 if ($path === '/sitemap.xml') {
     header('Content-Type: application/xml; charset=UTF-8');
     echo '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-    foreach (array_keys(PREFS) as $pc) { echo '<sitemap><loc>' . h(u('/sitemap-' . $pc . '.xml')) . '</loc></sitemap>'; }
-    echo '<sitemap><loc>' . h(u('/sitemap-names.xml')) . '</loc></sitemap></sitemapindex>'; exit;
+    $lm = $m['data_vintage'] ?? date('Y-m-d');
+    foreach (array_keys(PREFS) as $pc) { echo '<sitemap><loc>' . h(u('/sitemap-' . $pc . '.xml')) . '</loc><lastmod>' . $lm . '</lastmod></sitemap>'; }
+    echo '<sitemap><loc>' . h(u('/sitemap-names.xml')) . '</loc><lastmod>' . $lm . '</lastmod></sitemap></sitemapindex>'; exit;
 }
 if (preg_match('#^/sitemap-(\d{2}|names)\.xml$#', $path, $mm)) {
     header('Content-Type: application/xml; charset=UTF-8');
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     $lm = $m['data_vintage'] ?? date('Y-m-d');
     if ($mm[1] === 'names') {
-        echo '<url><loc>' . h(u('/')) . '</loc><lastmod>' . $lm . '</lastmod></url><url><loc>' . h(u('/area/')) . '</loc></url><url><loc>' . h(u('/seido/')) . '</loc></url>';
+        echo '<url><loc>' . h(u('/')) . '</loc><lastmod>' . $lm . '</lastmod></url><url><loc>' . h(u('/area/')) . '</loc><lastmod>' . $lm . '</lastmod></url><url><loc>' . h(u('/seido/')) . '</loc><lastmod>' . $lm . '</lastmod></url>';
         foreach (db()->query("SELECT name_core FROM stations WHERE name_core<>'' GROUP BY name_core HAVING COUNT(*)>=2") as $r) { echo '<url><loc>' . h(u('/n/' . rawurlencode($r['name_core']))) . '</loc><lastmod>' . $lm . '</lastmod></url>'; }
     } else {
         echo '<url><loc>' . h(u('/area/' . $mm[1] . '/')) . '</loc></url>';
