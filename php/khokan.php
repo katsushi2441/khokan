@@ -148,6 +148,7 @@ footer{margin-top:40px;border-top:1px solid var(--line);padding:20px 0;font-size
     echo '<p>出典：' . h($m['source_name'] ?? '') . '（<a href="' . h($m['source_url'] ?? '') . '" rel="noopener">' . h($m['source_url'] ?? '') . '</a>）を加工して作成。データ時点 ' . h($m['data_vintage'] ?? '') . '（' . n($m['count'] ?? 0) . '事業所）。住所の座標変換は国土地理院 地名検索API。</p>';
     echo '<p>掲載内容は公開データの転記です。<b>空き状況・受け入れの可否・料金は載っていません。</b>必ず事業所へ電話でご確認ください。このページは案内であり、医療・介護の助言ではありません。</p>';
     echo '<p><a href="https://exbridge.jp/politech/?ref=kurage-khokan" rel="noopener">住民の困りごとから探す</a> ・ <a href="https://exbridge.jp/solution/kaigo.html?ref=kurage-khokan" rel="noopener">介護事業所のITコスト</a> ・ <a href="' . SITE . '/kseido.php/?ref=khokan" rel="noopener">Kurage 制度ナビ</a> ・ <a href="' . SITE . '/krefuge.php/?ref=khokan" rel="noopener">避難所マップ</a> ・ <a href="https://exbridge.jp/" rel="noopener">株式会社エクスブリッジ</a></p>';
+    echo '<p><a href="https://kappstore.exbridge.jp/app.php?id=2bdf59a8795a50e8&amp;ref=khokan" rel="noopener">このサイトの一式をオンプレミスで導入する（商品ページ）</a></p>';
     echo '</div></footer>';
     echo '<img src="' . SITE . '/simpletrack.php?t=img&url=' . rawurlencode($url) . '&ref=' . rawurlencode($_GET['ref'] ?? '') . '" width="1" height="1" alt="" aria-hidden="true" style="position:absolute;left:-9999px">';
     echo '</body></html>';
