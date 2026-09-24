@@ -186,7 +186,13 @@ if (preg_match('#^/sitemap-(\d{2}|names)\.xml$#', $path, $mm)) {
         echo '<url><loc>' . h(u('/')) . '</loc><lastmod>' . $lm . '</lastmod></url><url><loc>' . h(u('/area/')) . '</loc><lastmod>' . $lm . '</lastmod></url><url><loc>' . h(u('/seido/')) . '</loc><lastmod>' . $lm . '</lastmod></url>';
         foreach (db()->query("SELECT name_core FROM stations WHERE name_core<>'' GROUP BY name_core HAVING COUNT(*)>=2") as $r) { echo '<url><loc>' . h(u('/n/' . rawurlencode($r['name_core']))) . '</loc><lastmod>' . $lm . '</lastmod></url>'; }
     } else {
-        echo '<url><loc>' . h(u('/area/' . $mm[1] . '/')) . '</loc></url>';
+        echo '<url><loc>' . h(u('/area/' . $mm[1] . '/')) . '</loc><lastmod>' . $lm . '</lastmod></url>';
+        // **市区町村ページを必ず入れる。** 2026-09-24 まで漏れていて、
+        // 「世田谷区 訪問看護」「横浜市 訪問看護ステーション」のような
+        // 市区町村＋業種の語（実測 月90／50）で戦うページが Google に伝わっていなかった。
+        $ct = db()->prepare('SELECT city FROM stations WHERE pref_code=? AND city<>\'\' GROUP BY city');
+        $ct->execute([$mm[1]]);
+        foreach ($ct as $r) { echo '<url><loc>' . h(u('/area/' . $mm[1] . '/' . rawurlencode($r['city']))) . '</loc><lastmod>' . $lm . '</lastmod></url>'; }
         $st = db()->prepare('SELECT no FROM stations WHERE pref_code=?'); $st->execute([$mm[1]]);
         foreach ($st as $r) { echo '<url><loc>' . h(u('/s/' . rawurlencode($r['no']))) . '</loc><lastmod>' . $lm . '</lastmod></url>'; }
     }
