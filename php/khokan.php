@@ -118,7 +118,7 @@ function page(string $title, string $desc, string $url, string $body, array $ld 
     echo '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
     echo '<title>' . h($title) . '</title><meta name="description" content="' . h($desc) . '">';
     echo '<link rel="canonical" href="' . h($url) . '">';
-    echo '<meta property="og:type" content="website"><meta property="og:site_name" content="' . h(NAME) . '"><meta property="og:title" content="' . h($title) . '"><meta property="og:description" content="' . h($desc) . '"><meta property="og:url" content="' . h($url) . '"><meta property="og:image" content="' . SITE . '/images/ogp/khokan.png"><meta name="twitter:card" content="summary_large_image">';
+    echo '<meta property="og:type" content="website"><meta property="og:site_name" content="' . h(NAME) . '"><meta property="og:title" content="' . h($title) . '"><meta property="og:description" content="' . h($desc) . '"><meta property="og:url" content="' . h($url) . '"><meta property="og:image" content="' . SITE . '/images/ogp/khokan.png"><meta property="og:locale" content="ja_JP"><meta name="twitter:card" content="summary_large_image">';
     echo '<meta name="color-scheme" content="light">';
     foreach ($ld as $j) { echo '<script type="application/ld+json">' . json_encode($j, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>'; }
     echo '<style>
@@ -151,6 +151,8 @@ footer{margin-top:40px;border-top:1px solid var(--line);padding:20px 0;font-size
     echo '<p><a href="https://kappstore.exbridge.jp/app.php?id=2bdf59a8795a50e8&amp;ref=khokan" rel="noopener">このサイトの一式をオンプレミスで導入する（商品ページ）</a></p>';
     echo '</div></footer>';
     echo '<img src="' . SITE . '/simpletrack.php?t=img&url=' . rawurlencode($url) . '&ref=' . rawurlencode($_GET['ref'] ?? '') . '" width="1" height="1" alt="" aria-hidden="true" style="position:absolute;left:-9999px">';
+    // 再販パートナー募集の枠（中身は kurage_web/partner-bar.js。kurage.exbridge.jp 以外では何も出さない）
+    echo '<script src="https://kurage.exbridge.jp/partner-bar.js" defer></script>';
     echo '</body></html>';
 }
 function station_card(array $r, bool $withKm = false): string {
@@ -374,4 +376,6 @@ $body .= '</div><p class="note">全国で ' . n($m['shared_names'] ?? 0) . ' の
 $body .= '<h2>都道府県から</h2><p><a class="btn sub" href="' . u('/area/') . '">47都道府県の一覧へ</a></p>';
 $body .= '<h2>制度の引き表</h2><div class="panel"><p>訪問看護を医療保険で使うか介護保険で使うか、要介護1〜5・要支援1〜2ごとの月の上限。<a href="' . u('/seido/') . '">引き表を見る</a></p></div>';
 $body .= '<h2>このページでできないこと</h2><div class="warn">空き状況・受け入れ可否・料金は、公開データに含まれていないため載せていません。24時間対応・精神科訪問看護・特別管理加算は、厚生局の届出名簿がある地域（いまは東海北陸6県）だけ「届出の有無」を出しています。事業所へ電話で確認してください。</div>';
-page(NAME . '｜訪問看護ステーションを名前・住所から探す（全国' . n($m['count'] ?? 0) . '軒）', '訪問看護ステーション' . n($m['count'] ?? 0) . '軒を名前・住所から。同じ名前の別事業所を住所で見分け、電話・利用可能曜日・運営法人を公開データで確認。医療保険/介護保険の引き表つき。', BASE . '/', $body, [], h(NAME));
+// **題名は全角32字以内。** 以前は38字で、スマホの検索結果で軒数が「…」に切られていた。
+// 検索されている語（訪問看護ステーション）を先頭に置く。
+page('訪問看護ステーションを名前・住所から探す（全国' . n($m['count'] ?? 0) . '軒）｜' . NAME, '訪問看護ステーション' . n($m['count'] ?? 0) . '軒を名前・住所から。同じ名前の別事業所を住所で見分け、電話・利用可能曜日・運営法人を公開データで確認。医療保険/介護保険の引き表つき。', BASE . '/', $body, [], h(NAME));
