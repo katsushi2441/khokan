@@ -151,8 +151,8 @@ footer{margin-top:40px;border-top:1px solid var(--line);padding:20px 0;font-size
     echo '<p><a href="https://kappstore.exbridge.jp/app.php?id=2bdf59a8795a50e8&amp;ref=khokan" rel="noopener">このサイトの一式をオンプレミスで導入する（商品ページ）</a></p>';
     echo '</div></footer>';
     echo '<img src="' . SITE . '/simpletrack.php?t=img&url=' . rawurlencode($url) . '&ref=' . rawurlencode($_GET['ref'] ?? '') . '" width="1" height="1" alt="" aria-hidden="true" style="position:absolute;left:-9999px">';
-    // 再販パートナー募集の枠（中身は kurage_web/partner-bar.js。kurage.exbridge.jp 以外では何も出さない）
-    echo '<script src="https://kurage.exbridge.jp/partner-bar.js" defer></script>';
+    // 再販パートナー募集の枠（中身は kurage_web/partner-bar.js）。当社の公開先でだけ読む（配布版を置いたサイトからは当社へ通信しない）
+    if (($_SERVER['HTTP_HOST'] ?? '') === 'kurage.exbridge.jp') echo '<script src="https://kurage.exbridge.jp/partner-bar.js" defer></script>';
     echo '</body></html>';
 }
 function station_card(array $r, bool $withKm = false): string {
